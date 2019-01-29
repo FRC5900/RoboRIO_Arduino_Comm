@@ -10,6 +10,9 @@ package frc.robot;
 import edu.wpi.first.wpilibj.SerialPort;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalOutput;
 
 
 /**
@@ -27,6 +30,15 @@ public class Robot extends TimedRobot {
 
   private SerialPort arduino;
   private Timer timer;
+  private int counter = 0;
+
+  private DigitalInput SW1;
+  private DigitalInput SW2;
+  private DigitalInput SW3;
+  private DigitalInput SW4;
+  private DigitalOutput LED1;
+  private DigitalOutput LED2;
+  private DigitalOutput LED3;
 
   @Override
   public void robotInit() {
@@ -49,6 +61,15 @@ public class Robot extends TimedRobot {
         }
       }
     }
+    SW1 = new DigitalInput(0);
+    SW2 = new DigitalInput(1);
+    SW3 = new DigitalInput(2);
+    SW4 = new DigitalInput(3);
+    LED1 = new DigitalOutput(4);
+    LED2 = new DigitalOutput(5);
+    LED3 = new DigitalOutput(6);
+
+
     timer = new Timer();
     timer.start();
   }
@@ -56,22 +77,36 @@ public class Robot extends TimedRobot {
   @Override 
   public void robotPeriodic() {
 
+    if( ++counter > 9999 )
+      counter = 0;
+
     if(timer.get() > 5) {
-      System.out.println("Wrote to Arduino");
+      System.out.println("Wrote to Arduino " + counter );
       arduino.write(new byte[] {0x12}, 1);
       timer.reset();
+
+      SmartDashboard.putBoolean("SW1", SW1.get());
+      SmartDashboard.putBoolean("SW2", SW2.get());
+      SmartDashboard.putBoolean("SW3", SW3.get());
+      SmartDashboard.putBoolean("SW4", SW4.get());
     }
 
     if(arduino.getBytesReceived() > 0) {
       System.out.print(arduino.readString());
     }
   
+   
+
   }
 
 
 
   @Override
   public void autonomousInit() {
+    LED1.set(false);
+    LED2.set(true);
+    LED3.set(true);
+    
   }
 
   @Override
@@ -80,6 +115,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopInit() {
+    LED1.set(true);
+    LED2.set(false);
+    LED3.set(true);
   }
 
   @Override
@@ -88,10 +126,20 @@ public class Robot extends TimedRobot {
 
   @Override
   public void testInit() {
+    LED1.set(true);
+    LED2.set(true);
+    LED3.set(false);
   }
 
   @Override
   public void testPeriodic() {
+  }
+
+  @Override
+  public void disabledInit() {
+    LED1.set(true);
+    LED2.set(true);
+    LED3.set(true);
   }
 
 }
